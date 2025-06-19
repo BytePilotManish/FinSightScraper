@@ -1,0 +1,28 @@
+{
+  "fields": {
+    "title": {
+      "selectors": [
+        "h1", 
+        "header h1", 
+        "title",
+        "h1.article-title",
+        "h1.mntl-article-title"
+      ]
+    },
+    "content": {
+      "selectors": [
+        "article", 
+        "div.mntl-sc-block",
+        "div.article__content",
+        "div#article-body",
+        "div.article-content",
+        "div.mntl-article",
+        "div.mntl-sc-block-group--OL",
+        "div.mntl-sc-block-group--P"
+      ],
+      "filters": {
+        "min_length": 100
+      }
+    }
+  }
+} 

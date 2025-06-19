@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finance Chatbot</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .chat-container {
+            height: calc(100vh - 200px);
+        }
+        .message {
+            max-width: 80%;
+            margin: 10px;
+            padding: 15px;
+            border-radius: 10px;
+        }
+        .user-message {
+            background-color: #e3f2fd;
+            margin-left: auto;
+        }
+        .bot-message {
+            background-color: #f5f5f5;
+            margin-right: auto;
+        }
+        .loading {
+            display: none;
+            margin: 10px;
+        }
+        .loading span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: #666;
+            border-radius: 50%;
+            margin: 0 3px;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        .loading span:nth-child(1) { animation-delay: -0.32s; }
+        .loading span:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1.0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold text-center mb-8 text-blue-600">Finance Chatbot</h1>
+        
+        <div class="bg-white rounded-lg shadow-lg p-4">
+            <div id="chat-messages" class="chat-container overflow-y-auto mb-4">
+                <div class="bot-message message">
+                    Hello! I'm your finance assistant. Ask me anything about finance, interest rates, bonds, or market trends!
+                </div>
+            </div>
+            
+            <div class="loading">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            
+            <form id="chat-form" class="flex gap-2">
+                <input type="text" 
+                       id="user-input" 
+                       class="flex-1 p-2 border rounded-lg focus:outline-none focus:border-blue-500"
+                       placeholder="Type your question here..."
+                       required>
+                <button type="submit" 
+                        class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors">
+                    Send
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const chatForm = document.getElementById('chat-form');
+        const userInput = document.getElementById('user-input');
+        const chatMessages = document.getElementById('chat-messages');
+        const loading = document.querySelector('.loading');
+
+        function addMessage(content, isUser = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+            messageDiv.textContent = content;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        async function handleSubmit(e) {
+            e.preventDefault();
+            
+            const question = userInput.value.trim();
+            if (!question) return;
+
+            // Add user message
+            addMessage(question, true);
+            userInput.value = '';
+
+            // Show loading
+            loading.style.display = 'block';
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ question }),
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Add bot response
+                    addMessage(data.response);
+                } else {
+                    addMessage('Sorry, I encountered an error. Please try again.');
+                }
+            } catch (error) {
+                addMessage('Sorry, I encountered an error. Please try again.');
+            } finally {
+                // Hide loading
+                loading.style.display = 'none';
+            }
+        }
+
+        chatForm.addEventListener('submit', handleSubmit);
+    </script>
+</body>
+</html> 
